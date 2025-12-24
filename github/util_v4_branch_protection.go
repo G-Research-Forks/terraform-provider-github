@@ -16,6 +16,12 @@ type Actor struct {
 	Slug githubv4.String
 }
 
+type ActorTeam struct {
+	ID           githubv4.ID
+	Name         githubv4.String
+	CombinedSlug githubv4.String
+}
+
 type ActorUser struct {
 	ID    githubv4.ID
 	Name  githubv4.String
@@ -25,7 +31,7 @@ type ActorUser struct {
 type DismissalActorTypes struct {
 	Actor struct {
 		App  Actor     `graphql:"... on App"`
-		Team Actor     `graphql:"... on Team"`
+		Team ActorTeam `graphql:"... on Team"`
 		User ActorUser `graphql:"... on User"`
 	}
 }
@@ -33,7 +39,7 @@ type DismissalActorTypes struct {
 type BypassForcePushActorTypes struct {
 	Actor struct {
 		App  Actor     `graphql:"... on App"`
-		Team Actor     `graphql:"... on Team"`
+		Team ActorTeam `graphql:"... on Team"`
 		User ActorUser `graphql:"... on User"`
 	}
 }
@@ -41,7 +47,7 @@ type BypassForcePushActorTypes struct {
 type BypassPullRequestActorTypes struct {
 	Actor struct {
 		App  Actor     `graphql:"... on App"`
-		Team Actor     `graphql:"... on Team"`
+		Team ActorTeam `graphql:"... on Team"`
 		User ActorUser `graphql:"... on User"`
 	}
 }
@@ -49,7 +55,7 @@ type BypassPullRequestActorTypes struct {
 type PushActorTypes struct {
 	Actor struct {
 		App  Actor     `graphql:"... on App"`
-		Team Actor     `graphql:"... on Team"`
+		Team ActorTeam `graphql:"... on Team"`
 		User ActorUser `graphql:"... on User"`
 	}
 }
@@ -366,9 +372,8 @@ func branchProtectionResourceDataActors(d *schema.ResourceData) (BranchProtectio
 	return data, nil
 }
 
-func setDismissalActorIDs(actors []DismissalActorTypes, data BranchProtectionResourceData, meta any) []string {
+func setDismissalActorIDs(actors []DismissalActorTypes, data BranchProtectionResourceData) []string {
 	dismissalActors := make([]string, 0, len(actors))
-	orgName := meta.(*Owner).name
 
 	for _, a := range actors {
 		IsID := false
@@ -380,8 +385,8 @@ func setDismissalActorIDs(actors []DismissalActorTypes, data BranchProtectionRes
 			}
 		}
 		if !IsID {
-			if a.Actor.Team.Slug != "" {
-				dismissalActors = append(dismissalActors, orgName+"/"+string(a.Actor.Team.Slug))
+			if a.Actor.Team.CombinedSlug != "" {
+				dismissalActors = append(dismissalActors, string(a.Actor.Team.CombinedSlug))
 				continue
 			}
 			if a.Actor.User.Login != "" {
@@ -396,10 +401,8 @@ func setDismissalActorIDs(actors []DismissalActorTypes, data BranchProtectionRes
 	return dismissalActors
 }
 
-func setBypassForcePushActorIDs(actors []BypassForcePushActorTypes, data BranchProtectionResourceData, meta any) []string {
+func setBypassForcePushActorIDs(actors []BypassForcePushActorTypes, data BranchProtectionResourceData) []string {
 	bypassActors := make([]string, 0, len(actors))
-
-	orgName := meta.(*Owner).name
 
 	for _, a := range actors {
 		IsID := false
@@ -411,8 +414,8 @@ func setBypassForcePushActorIDs(actors []BypassForcePushActorTypes, data BranchP
 			}
 		}
 		if !IsID {
-			if a.Actor.Team.Slug != "" {
-				bypassActors = append(bypassActors, orgName+"/"+string(a.Actor.Team.Slug))
+			if a.Actor.Team.CombinedSlug != "" {
+				bypassActors = append(bypassActors, string(a.Actor.Team.CombinedSlug))
 				continue
 			}
 			if a.Actor.User.Login != "" {
@@ -427,10 +430,8 @@ func setBypassForcePushActorIDs(actors []BypassForcePushActorTypes, data BranchP
 	return bypassActors
 }
 
-func setBypassPullRequestActorIDs(actors []BypassPullRequestActorTypes, data BranchProtectionResourceData, meta any) []string {
+func setBypassPullRequestActorIDs(actors []BypassPullRequestActorTypes, data BranchProtectionResourceData) []string {
 	bypassActors := make([]string, 0, len(actors))
-
-	orgName := meta.(*Owner).name
 
 	for _, a := range actors {
 		IsID := false
@@ -442,8 +443,8 @@ func setBypassPullRequestActorIDs(actors []BypassPullRequestActorTypes, data Bra
 			}
 		}
 		if !IsID {
-			if a.Actor.Team.Slug != "" {
-				bypassActors = append(bypassActors, orgName+"/"+string(a.Actor.Team.Slug))
+			if a.Actor.Team.CombinedSlug != "" {
+				bypassActors = append(bypassActors, string(a.Actor.Team.CombinedSlug))
 				continue
 			}
 			if a.Actor.User.Login != "" {
@@ -458,10 +459,8 @@ func setBypassPullRequestActorIDs(actors []BypassPullRequestActorTypes, data Bra
 	return bypassActors
 }
 
-func setPushActorIDs(actors []PushActorTypes, data BranchProtectionResourceData, meta any) []string {
+func setPushActorIDs(actors []PushActorTypes, data BranchProtectionResourceData) []string {
 	pushActors := make([]string, 0, len(actors))
-
-	orgName := meta.(*Owner).name
 
 	for _, a := range actors {
 		IsID := false
@@ -473,8 +472,8 @@ func setPushActorIDs(actors []PushActorTypes, data BranchProtectionResourceData,
 			}
 		}
 		if !IsID {
-			if a.Actor.Team.Slug != "" {
-				pushActors = append(pushActors, orgName+"/"+string(a.Actor.Team.Slug))
+			if a.Actor.Team.CombinedSlug != "" {
+				pushActors = append(pushActors, string(a.Actor.Team.CombinedSlug))
 				continue
 			}
 			if a.Actor.User.Login != "" {
@@ -489,16 +488,16 @@ func setPushActorIDs(actors []PushActorTypes, data BranchProtectionResourceData,
 	return pushActors
 }
 
-func setApprovingReviews(protection BranchProtectionRule, data BranchProtectionResourceData, meta any) any {
+func setApprovingReviews(protection BranchProtectionRule, data BranchProtectionResourceData) any {
 	if !protection.RequiresApprovingReviews {
 		return nil
 	}
 
 	dismissalAllowances := protection.ReviewDismissalAllowances.Nodes
-	dismissalActors := setDismissalActorIDs(dismissalAllowances, data, meta)
+	dismissalActors := setDismissalActorIDs(dismissalAllowances, data)
 
 	bypassPullRequestAllowances := protection.BypassPullRequestAllowances.Nodes
-	bypassPullRequestActors := setBypassPullRequestActorIDs(bypassPullRequestAllowances, data, meta)
+	bypassPullRequestActors := setBypassPullRequestActorIDs(bypassPullRequestAllowances, data)
 
 	approvalReviews := []any{
 		map[string]any{
@@ -530,13 +529,13 @@ func setStatusChecks(protection BranchProtectionRule) any {
 	return statusChecks
 }
 
-func setPushes(protection BranchProtectionRule, data BranchProtectionResourceData, meta any) any {
+func setPushes(protection BranchProtectionRule, data BranchProtectionResourceData) any {
 	if !protection.RestrictsPushes {
 		return nil
 	}
 
 	pushAllowances := protection.PushAllowances.Nodes
-	pushActors := setPushActorIDs(pushAllowances, data, meta)
+	pushActors := setPushActorIDs(pushAllowances, data)
 
 	restrictsPushes := []any{
 		map[string]any{
@@ -548,12 +547,12 @@ func setPushes(protection BranchProtectionRule, data BranchProtectionResourceDat
 	return restrictsPushes
 }
 
-func setForcePushBypassers(protection BranchProtectionRule, data BranchProtectionResourceData, meta any) []string {
+func setForcePushBypassers(protection BranchProtectionRule, data BranchProtectionResourceData) []string {
 	if protection.AllowsForcePushes {
 		return nil
 	}
 	bypassForcePushAllowances := protection.BypassForcePushAllowances.Nodes
-	bypassForcePushActors := setBypassForcePushActorIDs(bypassForcePushAllowances, data, meta)
+	bypassForcePushActors := setBypassForcePushActorIDs(bypassForcePushAllowances, data)
 
 	return bypassForcePushActors
 }
