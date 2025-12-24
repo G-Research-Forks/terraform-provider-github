@@ -372,7 +372,7 @@ func branchProtectionResourceDataActors(d *schema.ResourceData) (BranchProtectio
 	return data, nil
 }
 
-func setDismissalActorIDs(actors []DismissalActorTypes, data BranchProtectionResourceData, meta any) []string {
+func setDismissalActorIDs(actors []DismissalActorTypes, data BranchProtectionResourceData) []string {
 	dismissalActors := make([]string, 0, len(actors))
 
 	for _, a := range actors {
@@ -401,7 +401,7 @@ func setDismissalActorIDs(actors []DismissalActorTypes, data BranchProtectionRes
 	return dismissalActors
 }
 
-func setBypassForcePushActorIDs(actors []BypassForcePushActorTypes, data BranchProtectionResourceData, meta any) []string {
+func setBypassForcePushActorIDs(actors []BypassForcePushActorTypes, data BranchProtectionResourceData) []string {
 	bypassActors := make([]string, 0, len(actors))
 
 	for _, a := range actors {
@@ -430,7 +430,7 @@ func setBypassForcePushActorIDs(actors []BypassForcePushActorTypes, data BranchP
 	return bypassActors
 }
 
-func setBypassPullRequestActorIDs(actors []BypassPullRequestActorTypes, data BranchProtectionResourceData, meta any) []string {
+func setBypassPullRequestActorIDs(actors []BypassPullRequestActorTypes, data BranchProtectionResourceData) []string {
 	bypassActors := make([]string, 0, len(actors))
 
 	for _, a := range actors {
@@ -459,7 +459,7 @@ func setBypassPullRequestActorIDs(actors []BypassPullRequestActorTypes, data Bra
 	return bypassActors
 }
 
-func setPushActorIDs(actors []PushActorTypes, data BranchProtectionResourceData, meta any) []string {
+func setPushActorIDs(actors []PushActorTypes, data BranchProtectionResourceData) []string {
 	pushActors := make([]string, 0, len(actors))
 
 	for _, a := range actors {
@@ -488,16 +488,16 @@ func setPushActorIDs(actors []PushActorTypes, data BranchProtectionResourceData,
 	return pushActors
 }
 
-func setApprovingReviews(protection BranchProtectionRule, data BranchProtectionResourceData, meta any) any {
+func setApprovingReviews(protection BranchProtectionRule, data BranchProtectionResourceData) any {
 	if !protection.RequiresApprovingReviews {
 		return nil
 	}
 
 	dismissalAllowances := protection.ReviewDismissalAllowances.Nodes
-	dismissalActors := setDismissalActorIDs(dismissalAllowances, data, meta)
+	dismissalActors := setDismissalActorIDs(dismissalAllowances, data)
 
 	bypassPullRequestAllowances := protection.BypassPullRequestAllowances.Nodes
-	bypassPullRequestActors := setBypassPullRequestActorIDs(bypassPullRequestAllowances, data, meta)
+	bypassPullRequestActors := setBypassPullRequestActorIDs(bypassPullRequestAllowances, data)
 
 	approvalReviews := []any{
 		map[string]any{
@@ -529,13 +529,13 @@ func setStatusChecks(protection BranchProtectionRule) any {
 	return statusChecks
 }
 
-func setPushes(protection BranchProtectionRule, data BranchProtectionResourceData, meta any) any {
+func setPushes(protection BranchProtectionRule, data BranchProtectionResourceData) any {
 	if !protection.RestrictsPushes {
 		return nil
 	}
 
 	pushAllowances := protection.PushAllowances.Nodes
-	pushActors := setPushActorIDs(pushAllowances, data, meta)
+	pushActors := setPushActorIDs(pushAllowances, data)
 
 	restrictsPushes := []any{
 		map[string]any{
@@ -547,12 +547,12 @@ func setPushes(protection BranchProtectionRule, data BranchProtectionResourceDat
 	return restrictsPushes
 }
 
-func setForcePushBypassers(protection BranchProtectionRule, data BranchProtectionResourceData, meta any) []string {
+func setForcePushBypassers(protection BranchProtectionRule, data BranchProtectionResourceData) []string {
 	if protection.AllowsForcePushes {
 		return nil
 	}
 	bypassForcePushAllowances := protection.BypassForcePushAllowances.Nodes
-	bypassForcePushActors := setBypassForcePushActorIDs(bypassForcePushAllowances, data, meta)
+	bypassForcePushActors := setBypassForcePushActorIDs(bypassForcePushAllowances, data)
 
 	return bypassForcePushActors
 }
