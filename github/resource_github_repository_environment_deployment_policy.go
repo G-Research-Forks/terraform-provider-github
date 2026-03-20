@@ -98,7 +98,7 @@ func resourceGithubRepositoryEnvironmentDeploymentPolicyCreate(ctx context.Conte
 	}
 
 	d.SetId(buildThreePartID(repoName, escapedEnvName, strconv.FormatInt(resultKey.GetID(), 10)))
-	return nil
+	return resourceGithubRepositoryEnvironmentDeploymentPolicyRead(ctx, d, meta)
 }
 
 func resourceGithubRepositoryEnvironmentDeploymentPolicyRead(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
@@ -173,7 +173,7 @@ func resourceGithubRepositoryEnvironmentDeploymentPolicyUpdate(ctx context.Conte
 		return diag.FromErr(err)
 	}
 	d.SetId(buildThreePartID(repoName, escapedEnvName, strconv.FormatInt(resultKey.GetID(), 10)))
-	return nil
+	return resourceGithubRepositoryEnvironmentDeploymentPolicyRead(ctx, d, meta)
 }
 
 func resourceGithubRepositoryEnvironmentDeploymentPolicyDelete(ctx context.Context, d *schema.ResourceData, meta any) diag.Diagnostics {
