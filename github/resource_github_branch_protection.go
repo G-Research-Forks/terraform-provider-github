@@ -333,7 +333,7 @@ func resourceGithubBranchProtectionRead(d *schema.ResourceData, meta any) error 
 		return err
 	}
 
-	approvingReviews := setApprovingReviews(protection, data)
+	approvingReviews := setApprovingReviews(protection, data, meta)
 	err = d.Set(PROTECTION_REQUIRES_APPROVING_REVIEWS, approvingReviews)
 	if err != nil {
 		log.Printf("[DEBUG] Problem setting '%s' in %s %s branch protection (%s)", PROTECTION_REQUIRES_APPROVING_REVIEWS, protection.Repository.Name, protection.Pattern, d.Id())
